@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import {createStore, combineReducers, applyMiddleware} from 'redux';
+import logger from 'redux-logger';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
@@ -18,10 +19,8 @@ const countReducer = (state = initialState, action) => {
   switch(action.type) {
     case 'ADD':
       state.count = state.count + action.payload;
-      console.log('ADD');
       break;
     case 'SUBTRACT':
-      console.log('SUBTRACT');
       state.count = state.count - action.payload;
       break;
     default:
@@ -34,7 +33,6 @@ const uiReducer = (state = initialState, action) => {
   switch(action.type) {
     case 'TOGGLE':
     state.isBoolean = !state.isBoolean;
-    console.log('TOGGLE', state.isBoolean);
     break;
     default:
       return state;
@@ -42,18 +40,19 @@ const uiReducer = (state = initialState, action) => {
   return state;
 }
 
-// middleware follows this function call design (currying)
+// custom middleware follows this function call design (currying)
 // next is a method included in Redux to move on to the succeeding middleware call
-const myLogger = (store) => (next) => (action) => {
-  console.log(`Logged Action: ${action.type}`);
-  next(action);
-}
+      // const myLogger = (store) => (next) => (action) => {
+      //   console.log(`Logged Action: ${action.type}`);
+      //   next(action);
+      // }
 
 // a secondary argument can be used to pass in an initialState
 const store = createStore(
   combineReducers({countReducer, uiReducer}),
   {},
-  applyMiddleware(myLogger)
+  // the custom middleware is removed and 'redux-logger' has been added to the middleware as logger
+  applyMiddleware(logger)
 );
 
 // subscribe method executes when store is updated
