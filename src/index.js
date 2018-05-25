@@ -42,6 +42,8 @@ const uiReducer = (state = initialState, action) => {
   return state;
 }
 
+// middleware follows this function call design (currying)
+// next is a method included in Redux to move on to the succeeding middleware call
 const myLogger = (store) => (next) => (action) => {
   console.log(`Logged Action: ${action.type}`);
   next(action);
@@ -54,11 +56,13 @@ const store = createStore(
   applyMiddleware(myLogger)
 );
 
+// subscribe method executes when store is updated
 store.subscribe(() => {
   console.log('Store updated!', store.getState());
 });
 
-function exampleReduxStateUpdate () {
+// a iife function call to display changes in state by redux
+(function () {
   for (let i = 0; i <= 9; i++) {
     store.dispatch({
       type: 'ADD',
@@ -79,6 +83,4 @@ function exampleReduxStateUpdate () {
       payload: 1
     });
   }
-}
-
-exampleReduxStateUpdate();
+})();
