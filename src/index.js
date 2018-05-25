@@ -3,17 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import {createStore} from 'redux';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
 
 const initialState = {
-  count: 0
+  count: 0,
+  isBoolean: false
 }
 
 // initialState created above is set as a default argument if state is not provided
-const reducer = (state = initialState, action) => {
+const countReducer = (state = initialState, action) => {
   switch(action.type) {
     case 'ADD':
       state.count = state.count + action.payload;
@@ -29,23 +30,55 @@ const reducer = (state = initialState, action) => {
   return state;
 }
 
+const uiReducer = (state = initialState, action) => {
+  switch(action.type) {
+    case 'TOGGLE':
+    state.isBoolean = !state.isBoolean;
+    console.log('TOGGLE', state.isBoolean);
+    break;
+    default:
+      return state;
+  }
+  return state;
+}
+
+const myLogger = (store) => (next) => (action) => {
+  console.log(`Logged Action: ${action.type}`);
+  next(action);
+}
+
 // a secondary argument can be used to pass in an initialState
-const store = createStore(reducer);
+const store = createStore(
+  combineReducers({countReducer, uiReducer}),
+  {},
+  applyMiddleware(myLogger)
+);
 
 store.subscribe(() => {
   console.log('Store updated!', store.getState());
 });
 
-for (let i = 0; i <= 9; i++) {
-  store.dispatch({
-    type: 'ADD',
-    payload: 1
-  });
+function exampleReduxStateUpdate () {
+  for (let i = 0; i <= 9; i++) {
+    store.dispatch({
+      type: 'ADD',
+      payload: 1
+    });
+  }
+  
+  for (let i = 0; i <= 2; i++) {  
+    store.dispatch({
+      type: 'SUBTRACT',
+      payload: 1
+    });
+  }
+
+  for (let i = 0; i <= 2; i++) {  
+    store.dispatch({
+      type: 'TOGGLE',
+      payload: 1
+    });
+  }
 }
 
-for (let i = 0; i <= 2; i++) {
-  store.dispatch({
-    type: 'SUBTRACT',
-    payload: 1
-  });
-}
+exampleReduxStateUpdate();
